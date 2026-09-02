@@ -1,4 +1,4 @@
-import streamlit as st
+﻿import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -15,12 +15,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.title("🩺 DiabetoDash")
+st.sidebar.title("ðŸ©º DiabetoDash")
 st.sidebar.markdown("### Clinical Monitoring System")
 st.sidebar.markdown("---")
 
-patient_id = st.sidebar.selectbox("📋 Select Patient ID", ['559', '563', '570', '575', '588', '591'])
-horizon = st.sidebar.radio("⏱️ Prediction Horizon (Mins)", [30, 60, 90, 120], index=1)
+patient_id = st.sidebar.selectbox("ðŸ“‹ Select Patient ID", ['559', '563', '570', '575', '588', '591'])
+horizon = st.sidebar.radio("â±ï¸ Prediction Horizon (Mins)", [30, 60, 90, 120], index=1)
 
 st.sidebar.markdown("---")
 st.sidebar.info("Model: **Attention-BiLSTM**\n\nLoss: **Clinical Asymmetric**")
@@ -54,9 +54,9 @@ pred_bilstm_val = int(bilstm_pred[-1])
 min_pred = int(np.min(bilstm_pred[-60:]))
 
 st.title("Patient Monitoring Dashboard")
-st.markdown(f"**Patient ID:** {patient_id} &nbsp;|&nbsp; **Status:** Live Monitoring 🟢")
+st.markdown(f"**Patient ID:** {patient_id} &nbsp;|&nbsp; **Status:** Live Monitoring ðŸŸ¢")
 
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Main Dashboard", "👤 Patient Profile", "🧠 Model Insights", "📈 Evaluation & Proofs"])
+tab1, tab2, tab3, tab4 = st.tabs(["ðŸ“Š Main Dashboard", "ðŸ‘¤ Patient Profile", "ðŸ§  Model Insights", "ðŸ“ˆ Evaluation & Proofs"])
 
 with tab1:
     col1, col2, col3, col4 = st.columns(4)
@@ -70,7 +70,7 @@ with tab1:
 
     left_col, right_col = st.columns([2, 1])
     with left_col:
-        st.subheader(f"📈 Glucose Forecasting ({horizon} Mins Ahead)")
+        st.subheader(f"ðŸ“ˆ Glucose Forecasting ({horizon} Mins Ahead)")
         fig = go.Figure()
         fig.add_trace(go.Scatter(y=actual_glucose[-100:], mode='lines', name='Actual Glucose', line=dict(color='blue', width=3)))
         fig.add_trace(go.Scatter(y=bilstm_pred[-100:], mode='lines', name='Attention-BiLSTM', line=dict(color='green', width=3, dash='dash')))
@@ -81,7 +81,7 @@ with tab1:
         st.plotly_chart(fig, use_container_width=True)
 
     with right_col:
-        st.subheader('📊 Glycemic Status (Last 24h)')
+        st.subheader('ðŸ“Š Glycemic Status (Last 24h)')
         tbr = np.sum(actual_glucose < 70)
         tar = np.sum(actual_glucose > 180)
         tir = len(actual_glucose) - tbr - tar
@@ -96,19 +96,19 @@ with tab1:
         st.pyplot(fig2)
 
     st.markdown("---")
-    st.subheader("💡 Clinical Decision Support & Diet Recommendation")
+    st.subheader("ðŸ’¡ Clinical Decision Support & Diet Recommendation")
     max_pred_glucose = np.max(bilstm_pred[-60:])
     if min_pred < 70:
-        st.error(f"🚨 **CRITICAL ALERT:** The AI predicts a severe drop to {min_pred} mg/dL within {horizon} minutes.")
-        st.warning("🍽️ **Immediate Action Required:** Consume 15g of fast-acting carbs (e.g., 4 oz fruit juice). Recheck in 15 mins.")
+        st.error(f"ðŸš¨ **CRITICAL ALERT:** The AI predicts a severe drop to {min_pred} mg/dL within {horizon} minutes.")
+        st.warning("ðŸ½ï¸ **Immediate Action Required:** Consume 15g of fast-acting carbs (e.g., 4 oz fruit juice). Recheck in 15 mins.")
     elif max_pred_glucose > 180:
-        st.warning(f"⚠️ **HIGH GLUCOSE:** The AI predicts a rise to {int(max_pred_glucose)} mg/dL.")
-        st.info("💧 **Recommendation:** Consider a correction bolus. Drink water and avoid carbs.")
+        st.warning(f"âš ï¸ **HIGH GLUCOSE:** The AI predicts a rise to {int(max_pred_glucose)} mg/dL.")
+        st.info("ðŸ’§ **Recommendation:** Consider a correction bolus. Drink water and avoid carbs.")
     else:
-        st.success("✅ **PATIENT STABLE:** Glucose is predicted to remain in the safe zone (70-180 mg/dL).")
+        st.success("âœ… **PATIENT STABLE:** Glucose is predicted to remain in the safe zone (70-180 mg/dL).")
 
 with tab2:
-    st.subheader("👤 Patient Medical History")
+    st.subheader("ðŸ‘¤ Patient Medical History")
     colA, colB = st.columns(2)
     with colA:
         st.markdown(f'''
@@ -126,7 +126,7 @@ with tab2:
         ''')
 
 with tab3:
-    st.subheader("🧠 AI Model Architecture & Clinical Loss")
+    st.subheader("ðŸ§  AI Model Architecture & Clinical Loss")
     st.write("This dashboard is powered by a state-of-the-art Deep Learning model designed specifically for patient safety.")
     st.code('''
     Model: Bidirectional Long Short-Term Memory (BiLSTM)
@@ -168,26 +168,26 @@ with tab3:
     st.info("As shown in the red curve above, if a patient's actual glucose is dropping dangerously (60 mg/dL), but the AI falsely predicts they are safe (e.g., 80 mg/dL), our Clinical Loss applies a massive penalty. This forces the AI to never miss a Hypoglycemia event!")
 
 with tab4:
-    st.subheader("📈 Clinical Evaluation & Proofs")
+    st.subheader("ðŸ“ˆ Clinical Evaluation & Proofs")
     st.write("These graphs represent the genuine outputs of our model trained on the patient dataset.")
     
     if os.path.exists("Real_6Patients_Explainability.png"):
         st.markdown("### 1. Explainability Analysis (SHAP)")
-        st.image("Real_6Patients_Explainability.png", use_column_width=True)
+        st.image("Real_6Patients_Explainability.png", use_container_width=True)
         st.write("This proves the AI prioritizes the most recent glucose readings to make physiological predictions.")
         st.markdown("---")
         
     if os.path.exists("Clinical_Zone_Errors.png"):
         st.markdown("### 2. Clinical Zone Errors")
-        st.image("Clinical_Zone_Errors.png", use_column_width=True)
+        st.image("Clinical_Zone_Errors.png", use_container_width=True)
         st.write("This proves the model restricts errors heavily in the Hypoglycemia (<70) danger zone.")
         st.markdown("---")
         
     if os.path.exists("Ablation_Study_Graph.png"):
         st.markdown("### 3. Ablation Study: Impact of Digital Twin")
-        st.image("Ablation_Study_Graph.png", use_column_width=True)
+        st.image("Ablation_Study_Graph.png", use_container_width=True)
         st.write("This proves the Data-Driven Digital Twin successfully augments data and reduces forecasting error.")
 
 st.markdown('---')
-st.markdown('### 📬 Get in Touch')
+st.markdown('### ðŸ“¬ Get in Touch')
 st.markdown('**Developer:** Rahul Banavath  \n**Email:** rahulbanavath613@gmail.com  \n**Contact:** 7989271387')
