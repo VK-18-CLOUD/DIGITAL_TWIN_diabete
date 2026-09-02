@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -15,15 +15,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.title("ðŸ©º DiabetoDash")
-st.sidebar.markdown("### Clinical Monitoring System")
-st.sidebar.markdown("---")
+st.sidebar.title('DiabetoDash')
+st.sidebar.markdown('### Clinical Monitoring System')
+st.sidebar.markdown('---')
 
-patient_id = st.sidebar.selectbox("ðŸ“‹ Select Patient ID", ['559', '563', '570', '575', '588', '591'])
-horizon = st.sidebar.radio("â±ï¸ Prediction Horizon (Mins)", [30, 60, 90, 120], index=1)
+patient_id = st.sidebar.selectbox('Select Patient ID', ['559', '563', '570', '575', '588', '591'])
+horizon = st.sidebar.radio('Prediction Horizon (Mins)', [30, 60, 90, 120], index=1)
 
-st.sidebar.markdown("---")
-st.sidebar.info("Model: **Attention-BiLSTM**\n\nLoss: **Clinical Asymmetric**")
+st.sidebar.markdown('---')
+st.sidebar.info('Model: **Attention-BiLSTM**\n\nLoss: **Clinical Asymmetric**')
 
 if horizon == 30:
     b_shift = 1; x_shift = 2; noise_mult = 1.0
@@ -53,35 +53,35 @@ current_glucose = int(actual_glucose[-1])
 pred_bilstm_val = int(bilstm_pred[-1])
 min_pred = int(np.min(bilstm_pred[-60:]))
 
-st.title("Patient Monitoring Dashboard")
-st.markdown(f"**Patient ID:** {patient_id} &nbsp;|&nbsp; **Status:** Live Monitoring ðŸŸ¢")
+st.title('Patient Monitoring Dashboard')
+st.markdown(f'**Patient ID:** {patient_id} &nbsp;|&nbsp; **Status:** Live Monitoring')
 
-tab1, tab2, tab3, tab4 = st.tabs(["ðŸ“Š Main Dashboard", "ðŸ‘¤ Patient Profile", "ðŸ§  Model Insights", "ðŸ“ˆ Evaluation & Proofs"])
+tab1, tab2, tab3, tab4 = st.tabs(['Main Dashboard', 'Patient Profile', 'Model Insights', 'Evaluation & Proofs'])
 
 with tab1:
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Current Glucose", f"{current_glucose} mg/dL", delta="-5 mg/dL (Dropping)" if current_glucose < 100 else "Stable")
-    col2.metric(f"Predicted ({horizon}m)", f"{pred_bilstm_val} mg/dL", delta="Attention-BiLSTM")
-    col3.metric("Time in Range (24h)", "62%", delta="Target: >70%")
+    col1.metric('Current Glucose', f'{current_glucose} mg/dL', delta='-5 mg/dL (Dropping)' if current_glucose < 100 else 'Stable')
+    col2.metric(f'Predicted ({horizon}m)', f'{pred_bilstm_val} mg/dL', delta='Attention-BiLSTM')
+    col3.metric('Time in Range (24h)', '62%', delta='Target: >70%')
     
-    status = "Danger" if min_pred < 70 else "Safe"
-    col4.metric("Hypoglycemia Risk", status, delta="High Risk" if status=="Danger" else "Low Risk", delta_color="inverse" if status=="Danger" else "normal")
-    st.markdown("---")
+    status = 'Danger' if min_pred < 70 else 'Safe'
+    col4.metric('Hypoglycemia Risk', status, delta='High Risk' if status=='Danger' else 'Low Risk', delta_color='inverse' if status=='Danger' else 'normal')
+    st.markdown('---')
 
     left_col, right_col = st.columns([2, 1])
     with left_col:
-        st.subheader(f"ðŸ“ˆ Glucose Forecasting ({horizon} Mins Ahead)")
+        st.subheader(f'Glucose Forecasting ({horizon} Mins Ahead)')
         fig = go.Figure()
-        fig.add_trace(go.Scatter(y=actual_glucose[-100:], mode='lines', name='Actual Glucose', line=dict(color='blue', width=3)))
-        fig.add_trace(go.Scatter(y=bilstm_pred[-100:], mode='lines', name='Attention-BiLSTM', line=dict(color='green', width=3, dash='dash')))
-        fig.add_trace(go.Scatter(y=xgb_pred[-100:], mode='lines', name='XGBoost', line=dict(color='red', width=2, dash='dot')))
+        fig.add_trace(go.Scatter(y=actual_glucose[-100:], mode="lines", name="Actual Glucose", line=dict(color="blue", width=3)))
+        fig.add_trace(go.Scatter(y=bilstm_pred[-100:], mode="lines", name="Attention-BiLSTM", line=dict(color="green", width=3, dash="dash")))
+        fig.add_trace(go.Scatter(y=xgb_pred[-100:], mode="lines", name="XGBoost", line=dict(color="red", width=2, dash="dot")))
         fig.add_hrect(y0=0, y1=70, line_width=0, fillcolor="red", opacity=0.1, annotation_text="Hypoglycemia", annotation_position="top left")
         fig.add_hrect(y0=180, y1=300, line_width=0, fillcolor="orange", opacity=0.1, annotation_text="Hyperglycemia", annotation_position="bottom left")
         fig.update_layout(height=400, margin=dict(l=0, r=0, t=30, b=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
         st.plotly_chart(fig, use_container_width=True)
 
     with right_col:
-        st.subheader('ðŸ“Š Glycemic Status (Last 24h)')
+        st.subheader('Glycemic Status (Last 24h)')
         tbr = np.sum(actual_glucose < 70)
         tar = np.sum(actual_glucose > 180)
         tir = len(actual_glucose) - tbr - tar
@@ -95,20 +95,20 @@ with tab1:
         fig2.patch.set_alpha(0.0)
         st.pyplot(fig2)
 
-    st.markdown("---")
-    st.subheader("ðŸ’¡ Clinical Decision Support & Diet Recommendation")
+    st.markdown('---')
+    st.subheader('Clinical Decision Support & Diet Recommendation')
     max_pred_glucose = np.max(bilstm_pred[-60:])
     if min_pred < 70:
-        st.error(f"ðŸš¨ **CRITICAL ALERT:** The AI predicts a severe drop to {min_pred} mg/dL within {horizon} minutes.")
-        st.warning("ðŸ½ï¸ **Immediate Action Required:** Consume 15g of fast-acting carbs (e.g., 4 oz fruit juice). Recheck in 15 mins.")
+        st.error(f'CRITICAL ALERT: The AI predicts a severe drop to {min_pred} mg/dL within {horizon} minutes.')
+        st.warning('Immediate Action Required: Consume 15g of fast-acting carbs (e.g., 4 oz fruit juice). Recheck in 15 mins.')
     elif max_pred_glucose > 180:
-        st.warning(f"âš ï¸ **HIGH GLUCOSE:** The AI predicts a rise to {int(max_pred_glucose)} mg/dL.")
-        st.info("ðŸ’§ **Recommendation:** Consider a correction bolus. Drink water and avoid carbs.")
+        st.warning(f'HIGH GLUCOSE: The AI predicts a rise to {int(max_pred_glucose)} mg/dL.')
+        st.info('Recommendation: Consider a correction bolus. Drink water and avoid carbs.')
     else:
-        st.success("âœ… **PATIENT STABLE:** Glucose is predicted to remain in the safe zone (70-180 mg/dL).")
+        st.success('PATIENT STABLE: Glucose is predicted to remain in the safe zone (70-180 mg/dL).')
 
 with tab2:
-    st.subheader("ðŸ‘¤ Patient Medical History")
+    st.subheader('Patient Medical History')
     colA, colB = st.columns(2)
     with colA:
         st.markdown(f'''
@@ -126,8 +126,8 @@ with tab2:
         ''')
 
 with tab3:
-    st.subheader("ðŸ§  AI Model Architecture & Clinical Loss")
-    st.write("This dashboard is powered by a state-of-the-art Deep Learning model designed specifically for patient safety.")
+    st.subheader('AI Model Architecture & Clinical Loss')
+    st.write('This dashboard is powered by a state-of-the-art Deep Learning model designed specifically for patient safety.')
     st.code('''
     Model: Bidirectional Long Short-Term Memory (BiLSTM)
     Enhancement: Temporal Attention Mechanism
@@ -136,7 +136,7 @@ with tab3:
     Horizon: 120 Minutes
     ''', language='text')
     
-    st.markdown("### Why our AI is safer for patients:")
+    st.markdown('### Why our AI is safer for patients:')
     fig3, ax3 = plt.subplots(figsize=(8, 4))
     y_true = 60
     y_preds = np.linspace(40, 80, 100)
@@ -157,9 +157,9 @@ with tab3:
     ax3.plot(y_preds, clinical_loss, 'r-', linewidth=3, label='Proposed Clinical Loss (Our AI)')
     ax3.axvline(x=60, color='gray', linestyle=':', label='Actual Glucose = 60 (Danger)')
     
-    ax3.set_xlabel("Model Predicted Glucose (mg/dL)")
-    ax3.set_ylabel("Penalty / Loss Value")
-    ax3.set_title("Loss Function Behavior During Hypoglycemia")
+    ax3.set_xlabel('Model Predicted Glucose (mg/dL)')
+    ax3.set_ylabel('Penalty / Loss Value')
+    ax3.set_title('Loss Function Behavior During Hypoglycemia')
     ax3.legend()
     ax3.grid(True, alpha=0.3)
     fig3.patch.set_alpha(0.0)
@@ -168,26 +168,26 @@ with tab3:
     st.info("As shown in the red curve above, if a patient's actual glucose is dropping dangerously (60 mg/dL), but the AI falsely predicts they are safe (e.g., 80 mg/dL), our Clinical Loss applies a massive penalty. This forces the AI to never miss a Hypoglycemia event!")
 
 with tab4:
-    st.subheader("ðŸ“ˆ Clinical Evaluation & Proofs")
-    st.write("These graphs represent the genuine outputs of our model trained on the patient dataset.")
+    st.subheader('Clinical Evaluation & Proofs')
+    st.write('These graphs represent the genuine outputs of our model trained on the patient dataset.')
     
-    if os.path.exists("Real_6Patients_Explainability.png"):
-        st.markdown("### 1. Explainability Analysis (SHAP)")
-        st.image("Real_6Patients_Explainability.png", use_container_width=True)
-        st.write("This proves the AI prioritizes the most recent glucose readings to make physiological predictions.")
-        st.markdown("---")
+    if os.path.exists('Real_6Patients_Explainability.png'):
+        st.markdown('### 1. Explainability Analysis (SHAP)')
+        st.image('Real_6Patients_Explainability.png', use_container_width=True)
+        st.write('This proves the AI prioritizes the most recent glucose readings to make physiological predictions.')
+        st.markdown('---')
         
-    if os.path.exists("Clinical_Zone_Errors.png"):
-        st.markdown("### 2. Clinical Zone Errors")
-        st.image("Clinical_Zone_Errors.png", use_container_width=True)
-        st.write("This proves the model restricts errors heavily in the Hypoglycemia (<70) danger zone.")
-        st.markdown("---")
+    if os.path.exists('Clinical_Zone_Errors.png'):
+        st.markdown('### 2. Clinical Zone Errors')
+        st.image('Clinical_Zone_Errors.png', use_container_width=True)
+        st.write('This proves the model restricts errors heavily in the Hypoglycemia (<70) danger zone.')
+        st.markdown('---')
         
-    if os.path.exists("Ablation_Study_Graph.png"):
-        st.markdown("### 3. Ablation Study: Impact of Digital Twin")
-        st.image("Ablation_Study_Graph.png", use_container_width=True)
-        st.write("This proves the Data-Driven Digital Twin successfully augments data and reduces forecasting error.")
+    if os.path.exists('Ablation_Study_Graph.png'):
+        st.markdown('### 3. Ablation Study: Impact of Digital Twin')
+        st.image('Ablation_Study_Graph.png', use_container_width=True)
+        st.write('This proves the Data-Driven Digital Twin successfully augments data and reduces forecasting error.')
 
 st.markdown('---')
-st.markdown('### ðŸ“¬ Get in Touch')
+st.markdown('### Get in Touch')
 st.markdown('**Developer:** Rahul Banavath  \n**Email:** rahulbanavath613@gmail.com  \n**Contact:** 7989271387')
